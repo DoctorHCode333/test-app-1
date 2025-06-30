@@ -60,3 +60,38 @@ def get_wordcloud():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+import React, { useState } from 'react';
+
+const WordCloudViewer = () => {
+  const [imageSrc, setImageSrc] = useState(null);
+
+  const fetchWordCloud = async () => {
+    const response = await fetch('http://localhost:5000/api/wordcloud');
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    setImageSrc(url);
+  };
+
+  return (
+    <div>
+      <button onClick={fetchWordCloud} className="p-2 bg-blue-600 text-white rounded">
+        Generate Word Cloud
+      </button>
+
+      {imageSrc && (
+        <div className="mt-4">
+          <img src={imageSrc} alt="Word Cloud" style={{ maxWidth: '100%' }} />
+          <a href={imageSrc} download="wordcloud.png" className="mt-2 block text-blue-700 underline">
+            Download Word Cloud
+          </a>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default WordCloudViewer;
