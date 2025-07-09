@@ -1,4 +1,4 @@
-import org.apache.poi.ss.usermodel.*;
+Aimport org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileOutputStream;
@@ -38,6 +38,65 @@ public class ExcelSimpleWriter {
             workbook.write(fileOut);
             workbook.close();
             System.out.println("Excel file 'my-excel-file.xlsx' created successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class ExcelWriter {
+    public static void main(String[] args) {
+        // Create a workbook
+        Workbook workbook = new XSSFWorkbook();
+
+        // Create a sheet
+        Sheet sheet = workbook.createSheet("Data");
+
+        // Sample column headers
+        String[] headers = { "ID", "Name", "Email", "Age" };
+
+        // Sample data
+        String[][] data = {
+            { "1", "Alice", "alice@example.com", "30" },
+            { "2", "Bob", "bob@example.com", "28" },
+            { "3", "Charlie", "charlie@example.com", "35" }
+        };
+
+        // Create header row
+        Row headerRow = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Fill data rows
+        for (int i = 0; i < data.length; i++) {
+            Row row = sheet.createRow(i + 1); // Row 1 onwards
+            for (int j = 0; j < data[i].length; j++) {
+                row.createCell(j).setCellValue(data[i][j]);
+            }
+        }
+
+        // Autosize columns
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Write to file
+        try (FileOutputStream fileOut = new FileOutputStream("output.xlsx")) {
+            workbook.write(fileOut);
+            workbook.close();
+            System.out.println("Excel file created successfully.");
         } catch (IOException e) {
             e.printStackTrace();
         }
