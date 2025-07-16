@@ -95,3 +95,17 @@ const WordCloudViewer = () => {
 };
 
 export default WordCloudViewer;
+
+
+SELECT
+  Conversation_ID,
+  '{' || LISTAGG(
+    '"' || Topic || '":[' || LISTAGG('"' || Phrase || '"', ',') 
+      WITHIN GROUP (ORDER BY Phrase) || ']',
+    ','
+  ) WITHIN GROUP (ORDER BY Topic) || '}' AS Topic_Phrases_JSON
+FROM (
+  SELECT DISTINCT Conversation_ID, Topic, Phrase
+  FROM your_table
+)
+GROUP BY Conversation_ID;
