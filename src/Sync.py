@@ -97,15 +97,24 @@ const WordCloudViewer = () => {
 export default WordCloudViewer;
 
 
+-- Step 1: Aggregate phrases per conversation and topic
+WITH topic_phrase_json AS (
+  SELECT
+    CONVERSATION_ID,
+    TOPICNAME,
+    '[' || LISTAGG('"' || TOPICPHRASE || '"', ',') 
+          WITHIN GROUP (ORDER BY TOPICPHRASE) || ']' AS phrase_list
+  FROM (
+    SELECT DISTINCT CONVERSATION_ID, TOPICNAME, TOPICPHRASE
+    FROM HIST_TOPICS_IXNS
+  )
+  GROUP BY CONVERSATION_ID, TOPICNAME
+)
+
+-- Step 2: Aggregate topic → phrase_list as a JSON string per conversation
 SELECT
   CONVERSATION_ID,
-  '{' || LISTAGG(
-    '"' || TOPICNAME || '":[' || LISTAGG('"' || TOPICPHRASE || '"', ',') 
-      WITHIN GROUP (ORDER BY TOPICPHRASE) || ']',
-    ','
-  ) WITHIN GROUP (ORDER BY TOPICNAME) || '}' AS Topic_Phrases_JSON
-FROM (
-  SELECT DISTINCT CONVERSATION_ID, TOPICNAME, TOPICPHRASE
-  FROM HIST_TOPICS_IXNS
-)
+  '{' || LISTAGG('"' || TOPICNAME || '":' || phrase_list, ',') 
+         WITHIN GROUP (ORDER BY TOPICNAME) || '}' AS Topic_Phrases_JSON
+FROM topic_phrase_json
 GROUP BY CONVERSATION_ID;
