@@ -98,14 +98,14 @@ export default WordCloudViewer;
 
 
 SELECT
-  Conversation_ID,
+  CONVERSATION_ID,
   '{' || LISTAGG(
-    '"' || Topic || '":[' || LISTAGG('"' || Phrase || '"', ',') 
-      WITHIN GROUP (ORDER BY Phrase) || ']',
+    '"' || TOPICNAME || '":[' || LISTAGG('"' || TOPICPHRASE || '"', ',') 
+      WITHIN GROUP (ORDER BY TOPICPHRASE) || ']',
     ','
-  ) WITHIN GROUP (ORDER BY Topic) || '}' AS Topic_Phrases_JSON
+  ) WITHIN GROUP (ORDER BY TOPICNAME) || '}' AS Topic_Phrases_JSON
 FROM (
-  SELECT DISTINCT Conversation_ID, Topic, Phrase
-  FROM your_table
+  SELECT DISTINCT CONVERSATION_ID, TOPICNAME, TOPICPHRASE
+  FROM HIST_TOPICS_IXNS
 )
-GROUP BY Conversation_ID;
+GROUP BY CONVERSATION_ID;
