@@ -73,3 +73,24 @@ def generate_wordcloud_image_negative(dateRange,filters,maxWordLength):
     plt.close()
     img_io.seek(0)
     return img_io
+
+import random
+from wordcloud import WordCloud
+
+# List of your 10 hex color values
+hex_colors = [
+    "#FF5733", "#33FF57", "#3357FF", "#F39C12", "#8E44AD",
+    "#1ABC9C", "#E74C3C", "#2ECC71", "#3498DB", "#9B59B6"
+]
+
+# Custom color function to randomly choose from the list
+def random_hex_color_func(word=None, font_size=None, position=None, orientation=None, font_path=None, random_state=None):
+    return random.choice(hex_colors)
+
+# Use in WordCloud
+wordcloud = WordCloud(
+    width=800,
+    height=400,
+    background_color='white',
+    color_func=random_hex_color_func
+).generate_from_frequencies(cleaned_final_data)  # or your word_freq
