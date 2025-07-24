@@ -1,238 +1,375 @@
-import React, { useState, useCallback } from 'react';
-import { Button } from 'primereact/button';
-import { ProgressSpinner } from 'primereact/progressspinner';
-import { Card } from 'primereact/card';
-import { Dropdown } from 'primereact/dropdown';
-import { Toast } from 'primereact/toast';
-import { useRef } from 'react';
+import React, { useState, useEffect } from "react";
+import { Button } from "primereact/button";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { FilterMatchMode, FilterOperator } from "primereact/api";
+import { MultiSelect } from "primereact/multiselect";
 
-const WordCloudViewer = () => {
-  const [imageSrc, setImageSrc] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [maxWordLength, setMaxWordLength] = useState(10);
-  const [error, setError] = useState(null);
-  const toast = useRef(null);
+// import {setDownloadData} from '../../Redux/actions'
 
-  const wordLengthOptions = [
-    { label: '5 words', value: 5 },
-    { label: '10 words', value: 10 },
-    { label: '15 words', value: 15 },
-    { label: '20 words', value: 20 },
-    { label: '25 words', value: 25 },
-    { label: '30 words', value: 30 },
-    { label: '50 words', value: 50 },
-    { label: 'Unlimited', value: null }
+const TopicsPage = (props) => {
+  const { downloadData, setDownloadData } = props;
+  const [selectedColumnNames, setSelectedColumnNames] = useState([]);
+
+  const columns = [
+    {
+      field: "convId",
+      header: "Conversation ID",
+      filter: true,
+      filterPlaceholder: "Search by ID",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { minWidth: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "startDate",
+      header: "Start Date",
+      sortable: true,
+      filter: true,
+      filterPlaceholder: "Search by Start Date",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "phrases",
+      header: "Phrases",
+      filter: true,
+      filterPlaceholder: "Search for a Phrase",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "sScore",
+      header: "Sentiment Score",
+      sortable: true,
+      filter: true,
+      filterPlaceholder: "Search by Sentiment Score",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "sTrend",
+      header: "Sentiment Trend",
+      sortable: true,
+      filter: true,
+      filterPlaceholder: "Search by Sentiment Trend",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "lob",
+      header: "LOB",
+      filter: true,
+      filterPlaceholder: "Search by LOB",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { minWidth: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "marketType",
+      header: "Market Type",
+      filter: true,
+      filterPlaceholder: "Search by Market Type",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "division",
+      header: "Division",
+      filter: true,
+      filterPlaceholder: "Search by Divison",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "queue",
+      header: "Queue",
+      filter: true,
+      filterPlaceholder: "Search by Queue",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "clientId",
+      header: "Client ID",
+      filter: true,
+      filterPlaceholder: "Search by Client ID",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "workTeams",
+      header: "Work Teams",
+      filter: true,
+      filterPlaceholder: "Search by Work Teams",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "agentId",
+      header: "Agent Name",
+      filter: true,
+      filterPlaceholder: "Search by Agent Name",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    
+    {
+      field: "call",
+      header: "Call Duration",
+      sortable: true,
+      filter: true,
+      filterPlaceholder: "Search by Call Duration(minutes)",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "agentDuration",
+      header: "Agent Duration",
+      sortable: true,
+      filter: true,
+      filterPlaceholder: "Search by Agent Duration(minutes)",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "acwTime",
+      header: "ACW Time",
+      sortable: true,
+      filter: true,
+      filterPlaceholder: "Search by ACW Time(seconds)",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "callHandleTime",
+      header: "Call Handle Time",
+      sortable: true,
+      filter: true,
+      filterPlaceholder: "Search by Call Handle Time(seconds)",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "silence",
+      header: "Silence Time %",
+      sortable: true,
+      filter: true,
+      filterPlaceholder: "Search by Silence Talk %",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "other",
+      header: "Other(Hold/Noise/SP) Time %",
+      sortable: true,
+      filter: true,
+      filterPlaceholder: "Search by Other Talk %",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "ANI",
+      header: "ANI",
+      filter: true,
+      filterPlaceholder: "Search by ANI",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "authType",
+      header: "Authentication Type",
+      filter: true,
+      filterPlaceholder: "Search by Authentication Type",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
+    {
+      field: "partyId",
+      header: "Party ID",
+      filter: true,
+      filterPlaceholder: "Search by Party ID",
+      className: "rounded-lg border divide-y divide-x",
+      filterMenuStyle: { width: "14rem" },
+      width: "150px",
+    },
   ];
 
-  const fetchWordCloud = useCallback(async () => {
-    setLoading(true);
-    setImageSrc(null);
-    setError(null);
-    
-    try {
-      const url = new URL('https://pstrlaae9381.dsglobal.org:5000/wordcloud');
-      if (maxWordLength) {
-        url.searchParams.append('max_words', maxWordLength.toString());
-      }
-      
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob);
-      setImageSrc(imageUrl);
-      
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Word cloud generated successfully!',
-        life: 3000
-      });
-    } catch (err) {
-      console.error('Error fetching word cloud:', err);
-      setError('Failed to generate word cloud. Please try again.');
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to generate word cloud. Please try again.',
-        life: 5000
-      });
-    } finally {
-      setLoading(false);
+  const [visibleColumns, setVisibleColumns] = useState(columns);
+
+  useEffect(() => {
+    //console.log("Change",selectedColumnNames,downloadData)
+    setDownloadData(selectedColumnNames);
+  }, [selectedColumnNames]);
+
+  const onColumnToggle = (event) => {
+    let selectedColumns = event.value;
+    let orderedSelectedColumns = columns.filter((col) =>
+      selectedColumns.some((sCol) => sCol.field === col.field)
+    );
+    setSelectedColumnNames(orderedSelectedColumns.map((item) => item.header));
+
+    setVisibleColumns(orderedSelectedColumns);
+  };
+
+  const [filters, setFilters] = useState({
+    convId: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    startDate: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    phrases: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    lob: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    marketType: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    division: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    queue: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    clientId: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    workTeams: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    agentId: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    sScore: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    sTrend: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    call: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    agentDuration: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    acwTime: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    callHandleTime: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    silence: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    other: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    ANI: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    authType: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    partyId: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  });
+
+  const [selectedCell, setSelectedCell] = useState(null);
+  const [metaKey, setMetaKey] = useState(true);
+
+  //convert UTC time to normal time
+  const convertTime = (utcString) => {
+    let utcDate = new Date(utcString);
+
+    let localTimeString = utcDate.toLocaleString();
+    return localTimeString;
+  };
+
+  const [customers, setCustomers] = useState(
+    props.data.map((item) => ({
+       startDate: item["Start Date"],
+      convId: item["Conversation ID"],
+      phrases: item["Phrases"],
+
+      lob: item["LOB"],
+      marketType: item["Market Type"],
+      division: item["Division"],
+      queue: item["Queue"],
+      clientId: item["Client ID"],
+      workTeams: item["Work Teams"],
+      agentId: item["Agent Name"],
+      sScore: item["Sentiment Score"],
+      sTrend: item["Sentiment Trend"],
+      call: item["Call Duration"],
+      agentDuration: item["Agent Duration"],
+      acwTime: item["ACW Time"],
+      callHandleTime: item["Call Handle Time"],   
+      silence: item["Silence Time %"],
+      other: item["Other(Hold/Noise/SP) Time %"],
+      authType: item["Authentication Type"],
+      ANI: item["ANI"],
+      partyId: item["Party ID"],
+    }))
+  );
+
+  // useEffect(() => {
+  //     console.log(customers);
+  //   }, [customers])
+
+  const handleCellSelection = (e) => {
+    setSelectedCell(e.value);
+    let selectedData = e.value;
+
+    if (selectedData.field === "convId") {
+      console.log(selectedData?.rowData?.convId, "cell value");
+      let convid = selectedData?.rowData?.convId;
+      let url =
+        "https://apps.usw2.pure.cloud/directory/#/engage/admin/interactions/" +
+        convid;
+      window.open(url, "_blank");
     }
-  }, [maxWordLength]);
+  };
 
-  const downloadWordCloud = useCallback(() => {
-    if (!imageSrc) return;
-    
-    const link = document.createElement('a');
-    link.href = imageSrc;
-    link.download = `wordcloud_${maxWordLength || 'unlimited'}_words_${new Date().toISOString().split('T')[0]}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast.current?.show({
-      severity: 'success',
-      summary: 'Downloaded',
-      detail: 'Word cloud downloaded successfully!',
-      life: 3000
-    });
-  }, [imageSrc, maxWordLength]);
+  const header = (
+    <>
+      <span className="text-sm  ml-3">Manage the columns in the table</span>
 
-  const handleRetry = useCallback(() => {
-    setError(null);
-    fetchWordCloud();
-  }, [fetchWordCloud]);
+      <MultiSelect
+        value={visibleColumns}
+        options={columns}
+        optionLabel="header"
+        onChange={onColumnToggle}
+        className="border w-full sm:w-20rem"
+        display="chip"
+        selectAllLabel="Select All Columns"
+      />
+    </>
+  );
+
+//   const handleFilterChange = (e) => {
+//     console.log(e);
+//     console.log(e.filteredValue);
+    
+//   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
-      <Toast ref={toast} />
-      
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
-          <div className="mb-6 lg:mb-0">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Word Cloud Generator
-            </h1>
-            <p className="text-gray-600 mt-2 text-lg">
-              Generate beautiful word clouds with customizable parameters
-            </p>
-          </div>
-          
-          {imageSrc && !loading && (
-            <div className="flex items-center gap-3">
-              <Button
-                icon="pi pi-download"
-                label="Download"
-                severity="success"
-                size="large"
-                onClick={downloadWordCloud}
-                className="shadow-lg hover:shadow-xl transition-shadow duration-200"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Controls Section */}
-        <Card className="mb-8 shadow-lg border-0 bg-white/70 backdrop-blur-sm">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <div className="flex flex-col gap-2 min-w-0 flex-1">
-              <label htmlFor="word-length" className="text-sm font-semibold text-gray-700">
-                Maximum Words
-              </label>
-              <Dropdown
-                id="word-length"
-                value={maxWordLength}
-                options={wordLengthOptions}
-                onChange={(e) => setMaxWordLength(e.value)}
-                placeholder="Select word limit"
-                className="w-full sm:w-auto min-w-48"
-                disabled={loading}
-              />
-            </div>
-            
-            <Button
-              label={loading ? "Generating..." : "Generate Word Cloud"}
-              icon={loading ? "pi pi-spin pi-spinner" : "pi pi-cloud"}
-              size="large"
-              onClick={fetchWordCloud}
-              disabled={loading}
-              className="shadow-md hover:shadow-lg transition-shadow duration-200 mt-4 sm:mt-6"
-            />
-          </div>
-        </Card>
-
-        {/* Main Content Section */}
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm min-h-96">
-          {/* Loading State */}
-          {loading && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <ProgressSpinner 
-                style={{ width: '60px', height: '60px' }} 
-                strokeWidth="3" 
-                animationDuration="1s"
-              />
-              <p className="text-gray-600 mt-4 text-lg">
-                Generating your word cloud...
-              </p>
-            </div>
-          )}
-
-          {/* Error State */}
-          {error && !loading && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md text-center">
-                <i className="pi pi-exclamation-triangle text-red-500 text-3xl mb-3"></i>
-                <h3 className="text-lg font-semibold text-red-800 mb-2">
-                  Generation Failed
-                </h3>
-                <p className="text-red-600 mb-4">{error}</p>
-                <Button
-                  label="Try Again"
-                  icon="pi pi-refresh"
-                  onClick={handleRetry}
-                  className="p-button-outlined"
-                  severity="danger"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Success State - Word Cloud Display */}
-          {imageSrc && !loading && (
-            <div className="flex flex-col items-center">
-              <div className="relative group">
-                <img
-                  src={imageSrc}
-                  alt="Generated Word Cloud"
-                  className="rounded-xl shadow-2xl max-w-full h-auto transition-all duration-300 ease-in-out group-hover:shadow-3xl"
-                  style={{ maxWidth: '97vw' }}
-                />
-                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
-              </div>
-              
-              <div className="mt-6 flex flex-col sm:flex-row gap-3 items-center">
-                <Button
-                  icon="pi pi-download"
-                  label="Download High Quality"
-                  severity="success"
-                  size="large"
-                  onClick={downloadWordCloud}
-                  className="shadow-lg hover:shadow-xl transition-shadow duration-200"
-                />
-                <Button
-                  icon="pi pi-refresh"
-                  label="Generate New"
-                  severity="secondary"
-                  outlined
-                  onClick={fetchWordCloud}
-                  className="shadow-md hover:shadow-lg transition-shadow duration-200"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Initial State */}
-          {!imageSrc && !loading && !error && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <i className="pi pi-cloud text-6xl text-blue-300 mb-4"></i>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                Ready to Generate
-              </h3>
-              <p className="text-gray-500 max-w-md">
-                Choose your word limit and click "Generate Word Cloud" to create a beautiful visualization of your data.
-              </p>
-            </div>
-          )}
-        </Card>
-      </div>
+    <div className="card">
+      <DataTable
+        filterDisplay="row"
+        paginator
+        showGridlines
+        rows={5}
+        rowsPerPageOptions={[5, 10, 25, 50, 100, 500, 1000]}
+        scrollable
+        value={customers}
+        scrollHeight="60vh"
+        header={header}
+        tableStyle={{ minWidth: "50rem" }}
+        className=" border  divide-y divide-x"
+        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        currentPageReportTemplate="{first} to {last} of {totalRecords}"
+        cellSelection
+        selectionMode="single"
+        onSelectionChange={handleCellSelection}
+        metaKeySelection={metaKey}
+        dataKey="id"
+        filters={filters}
+      >
+        {visibleColumns.map((col) => (
+          <Column
+            key={col.field}
+            field={col.field}
+            header={col.header}
+            sortable={col.sortable}
+            filter
+            filterPlaceholder={col.filterPlaceholder}
+            className={col.className}
+            filterMenuStyle={col.filterMenuStyle}
+            style={{ minWidth: col.width }}
+          />
+        ))}
+      </DataTable>
     </div>
   );
 };
-
-export default WordCloudViewer;
+export default TopicsPage;
