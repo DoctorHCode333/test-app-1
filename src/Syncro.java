@@ -132,3 +132,29 @@ FROM (
 ) 
 GROUP BY topicname, lob
 ORDER BY topicname, lob;
+
+
+
+SELECT 
+    lob,
+    topicname,
+    COUNT(DISTINCT conversation_id) AS topic_count,
+    ROUND(
+        COUNT(DISTINCT conversation_id) * 100.0 / 
+        SUM(COUNT(DISTINCT conversation_id)) OVER (PARTITION BY lob), 
+        2
+    ) AS percentage_in_lob,
+    XMLCAST(
+        XMLAGG(
+            XMLELEMENT(e, topicphrase || '@@@')
+            ORDER BY topicphrase
+        ) AS CLOB
+    ) AS all_phrases
+FROM hist_topics_ixns
+WHERE 
+    TRUNC(startdate) BETWEEN TO_DATE(:fromDate, 'YYYY-MM-DD') 
+                         AND TO_DATE(:toDate, 'YYYY-MM-DD')
+    AND topicname NOT LIKE 'PAL%' 
+    AND topicname NOT LIKE 'Chat%'
+GROUP BY lob, topicname
+ORDER BY lob, topicname;
