@@ -24,30 +24,38 @@ conversation_counts AS (
     AND topicname NOT LIKE 'PAL%' 
     AND topicname NOT LIKE 'Chat%'
   GROUP BY lob, topicname
+),
+aggregated AS (
+  SELECT
+    pd.lob,
+    pd.topicname,
+
+    -- CLOB of distinct phrases
+    XMLCAST(
+      XMLAGG(
+        XMLELEMENT(e, pd.topicphrase || '@@@')
+        ORDER BY pd.topicphrase
+      ) AS CLOB
+    ) AS distinct_phrases,
+
+    -- CLOB of counts, just numbers
+    XMLCAST(
+      XMLAGG(
+        XMLELEMENT(e, TO_CHAR(pd.phrase_count) || ',')
+        ORDER BY pd.topicphrase
+      ) AS CLOB
+    ) AS phrase_counts
+  FROM phrase_data pd
+  GROUP BY pd.lob, pd.topicname
 )
 SELECT 
-  cc.lob,
-  cc.topicname,
+  ag.lob,
+  ag.topicname,
   cc.topic_count,
-  ROUND(cc.topic_count * 100.0 / SUM(cc.topic_count) OVER (PARTITION BY cc.lob), 2) AS percentage_in_lob,
-
-  -- Distinct Phrases (joined with @@@)
-  XMLCAST(
-    XMLAGG(
-      XMLELEMENT(e, pd.topicphrase || '@@@')
-      ORDER BY pd.topicphrase
-    ) AS CLOB
-  ) AS distinct_phrases,
-
-  -- Phrase Counts (joined with commas, just numbers)
-  XMLCAST(
-    XMLAGG(
-      XMLELEMENT(e, TO_CHAR(pd.phrase_count) || ',')
-      ORDER BY pd.topicphrase
-    ) AS CLOB
-  ) AS phrase_counts
-
-FROM conversation_counts cc
-JOIN phrase_data pd
-  ON cc.lob = pd.lob AND cc.topicname = pd.topicname
-ORDER BY cc.lob, cc.topicname;
+  ROUND(cc.topic_count * 100.0 / SUM(cc.topic_count) OVER (PARTITION BY ag.lob), 2) AS percentage_in_lob,
+  ag.distinct_phrases,
+  ag.phrase_counts
+FROM aggregated ag
+JOIN conversation_counts cc
+  ON ag.lob = cc.lob AND ag.topicname = cc.topicname
+ORDER BY ag.lob, ag.topicname;
