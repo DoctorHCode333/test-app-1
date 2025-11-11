@@ -56,10 +56,23 @@ query.action_date = current_time
 # query.integration_id = ""
 
 query.conversation_query = {
-
     "interval": "2020-12-01T05:30:00.000Z/2020-12-02T05:30:00.000Z",
     "order": "asc",
-    "orderBy": "conversationStart"
+    "orderBy": "conversationStart",
+    "conversationFilters": [
+        {
+            "type": "and",
+            "clauses": [
+                {
+                    "type": "and",
+                    "predicates": [
+                        {"dimension": "mediaType", "value": "voice"},
+                        {"dimension": "direction", "value": "outbound"}
+                    ]
+                }
+            ]
+        }
+    ]
 }
 
 print(query)
