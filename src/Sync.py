@@ -136,7 +136,14 @@ else:
 #    print(f"Exception when calling RecordingApi->get_recording_jobs: { e }")
 #    sys.exit()
 
-
-92a82add-165e-43ba-ad44-274397a1112f
-30d63d66-5b54-4717-82f0-ee938e4ddfba
-329bd42f-3e8c-4b83-9439-b33daa776371
+        while job_state == "PROCESSING":
+            get_recording_job_response = recording_api.get_recording_job(job_id)
+            job_state =  get_recording_job_response.state
+            if job_state == 'PROCESSING':
+                print("Job state PROCESSING...")
+                time.sleep(10)
+            else:
+                print("Job state Complete...")
+                break
+        print("Job state ",job_state)
+        print(f"Successfully execute recording bulk job { get_recording_job_response}")
