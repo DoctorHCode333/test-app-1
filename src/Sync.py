@@ -157,3 +157,90 @@ Role-based security automation, eliminating human error in access control.
 Scalable architecture for enterprise environments, supporting high-volume requests.
 
 This approach not only accelerates compliance workflows but also sets a new benchmark for speed, security, and user experience in contact center and regulated industries.
+
+                                                                                     failed_recordings_api = get_recording_job_response.failed_recordings
+        failed_recordings_api = 'https://api.mypurecloud.com' + failed_recordings_api
+        # failed_recordings_api = 'https://api.usw2.pure.cloud' + failed_recordings_api
+       
+        archive_date = (datetime.now(timezone.utc) - timedelta(hours=4, minutes=30)) \
+            .strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        print(archive_date)
+        base_host = PureCloudPlatformClientV2.configuration.host
+        failed_recordings_url = urljoin(base_host, failed_recordings_api)
+        print(failed_recordings_url)
+
+        session = requests.Session()
+        session.headers.update({
+            "Authorization": f"Bearer {api_client.access_token}",
+            "Accept": "application/json"
+        })
+
+
+        page_size = 100
+        cursor = None  
+
+        total_seen = 0
+        total_archived = 0
+        errors = []
+
+        while True:
+            params = {
+                "includeTotal": "false", 
+                "pageSize": str(page_size)
+            }
+            if cursor:
+                params["cursor"] = cursor
+
+            resp = session.get(failed_recordings_url, params=params, timeout=30)
+            try:
+                resp.raise_for_status()
+            except requests.HTTPError as http_err:
+                print(f"[ERROR] GET failed recordings: {http_err} — URL={resp.url}")
+                break
+
+            data = resp.json() if resp.content else {}
+            entities = data.get("entities", [])
+
+            if not entities and not data.get("cursor"):
+                break
+
+            for entity in entities:
+                total_seen += 1
+                conversation_id = entity.get("conversationId")
+                recording_id = entity.get("recordingId")
+
+                if not conversation_id or not recording_id:
+                    errors.append({"entity": entity, "error": "Missing conversationId or recordingId"})
+                    continue        
+                body = PureCloudPlatformClientV2.Recording()
+                body.file_state = "ARCHIVE"  
+                body.archive_date = archive_date 
+                try:
+                    api_response = recording_api.put_conversation_recording(
+                        conversation_id,
+                        recording_id,
+                        body
+
+                    )
+                    total_archived += 1
+                    if total_archived % 50 == 0:
+                        print(
+                            f"Archived {total_archived} / {total_seen} (last conv={conversation_id}, rec={recording_id})")
+                except ApiException as e:
+                    errors.append({
+                        "conversationId": conversation_id,
+                        "recordingId": recording_id,
+                        "error": str(e)
+                    })
+            cursor = data.get("cursor")
+            if not cursor:
+                break
+
+        # ---- Summary ----
+        print("-------------------------------------------------------------")
+        print(f"Archive date used for ALL records: {archive_date}")
+        print(f"Failed recordings processed: {total_seen}")
+        print(f"Successfully archived:        {total_archived}")
+        print(f"Errors:                       {len(errors)}")
+
+                                                                                     
