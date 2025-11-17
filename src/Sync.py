@@ -242,5 +242,5 @@ This approach not only accelerates compliance workflows but also sets a new benc
         print(f"Failed recordings processed: {total_seen}")
         print(f"Successfully archived:        {total_archived}")
         print(f"Errors:                       {len(errors)}")
-
+os.environ['REQUESTS_CA_BUNDLE'] = ""
                                                                                      
