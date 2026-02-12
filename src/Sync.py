@@ -248,3 +248,4 @@ ID- 4ffcb0ff-81cc-4034-b61c-d6ca0f4f1933
 
 
 secret - dOT9c4Cfi6KKrME5mwKWi9aemsjeBGGlELul7vfxacQ
+Error: Failed to create queue ROTH | error: API Error: 403 - Unable to perform the requested action. You are missing the following permission(s): [routing:queue:add:data.genesyscloud_auth_division_home.Home.id] (8fc65b25-531b-42ea-a924-1311b0b1f874)
