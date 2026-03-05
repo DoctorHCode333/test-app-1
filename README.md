@@ -1,3 +1,9 @@
+Gemini 3.1 Pro: Advanced reasoning, multimodal (text, image, audio, video, code), 1M token context window, ideal for analytics, agents, and large document processing. [crn.com]
+Gemini Flash: Low‑cost, fast model for high‑volume tasks (summaries, autocomplete, lightweight agents).
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
