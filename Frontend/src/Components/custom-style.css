@@ -1,0 +1,9 @@
+.p-multiselect-header-checkbox .p-checkbox-box {
+    border-color: orange !important;
+}
+
+
+.p-multiselect-header-checkbox .p-checkbox-box:focus {
+    outline-color: orange !important;
+}
+

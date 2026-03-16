@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.p-card-body {
+    padding:0 !important
+}
+
+.multiselect-checbox {
+    @apply border border-gray-300 rounded !important; 
+  
+  }
+  
+  .p-multiselect-panel .p-checkbox-box{
+    @apply border border-gray-900 rounded;
+    
+  }
+
+/* .p-multiselect-items .p-multiselect-items{
+  @apply text-black;
+} */
+
+
+
+
+
