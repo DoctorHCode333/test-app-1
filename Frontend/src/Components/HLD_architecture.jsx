@@ -45,6 +45,21 @@ const HLD_Architecture = () => {
               <stop offset="0%" stopColor="#6B7280" />
               <stop offset="100%" stopColor="#4B5563" />
             </linearGradient>
+            <linearGradient id="gcpGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#4285F4" />
+              <stop offset="25%" stopColor="#EA4335" />
+              <stop offset="50%" stopColor="#FBBC04" />
+              <stop offset="75%" stopColor="#34A853" />
+              <stop offset="100%" stopColor="#4285F4" />
+            </linearGradient>
+            <linearGradient id="cloudRunGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#4285F4" />
+              <stop offset="100%" stopColor="#1A73E8" />
+            </linearGradient>
+            <linearGradient id="firebaseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFCA28" />
+              <stop offset="100%" stopColor="#FFA000" />
+            </linearGradient>
 
             {/* Arrow Marker */}
             <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -126,30 +141,36 @@ const HLD_Architecture = () => {
             </g>
           </g>
 
-          {/* ==================== LAYER 2: DATA PROCESSING ==================== */}
-          <g transform="translate(350, 80)">
+          {/* ==================== LAYER 2: DATA PROCESSING (GCP) ==================== */}
+          <g transform="translate(340, 55)">
+            {/* GCP Cloud Wrapper */}
+            <rect x="0" y="0" width="240" height="370" rx="16" fill="none" stroke="url(#gcpGradient)" strokeWidth="2" strokeDasharray="8,4" />
+            <g transform="translate(10, -8)">
+              <rect x="0" y="0" width="120" height="18" rx="9" fill="#1E293B" />
+              <text x="10" y="13" fill="#4285F4" fontSize="9" fontWeight="600">☁️ Google Cloud Platform</text>
+            </g>
+            
             {/* Section Label */}
-            <text x="0" y="-20" fill="#94A3B8" fontSize="14" fontWeight="600">
+            <text x="10" y="30" fill="#94A3B8" fontSize="12" fontWeight="600">
               DATA INGESTION & NORMALIZATION
             </text>
-            <line x1="0" y1="-10" x2="250" y2="-10" stroke="#475569" strokeWidth="1" />
 
             {/* Data Processor Box */}
-            <g filter="url(#shadow)">
-              <rect x="0" y="0" width="220" height="320" rx="12" fill="#1E293B" stroke="#3B82F6" strokeWidth="2" />
+            <g filter="url(#shadow)" transform="translate(10, 45)">
+              <rect x="0" y="0" width="220" height="305" rx="12" fill="#1E293B" stroke="url(#cloudRunGradient)" strokeWidth="2" />
               
-              {/* Process Icon */}
-              <g transform="translate(90, 20)">
-                <circle cx="20" cy="20" r="18" fill="none" stroke="#3B82F6" strokeWidth="2" />
-                <path d="M20 8 L20 20 L28 28" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" />
+              {/* Cloud Run Badge */}
+              <g transform="translate(55, 10)">
+                <rect x="0" y="0" width="120" height="20" rx="10" fill="#4285F4" />
+                <text x="55" y="14" textAnchor="middle" fill="white" fontSize="9" fontWeight="600">⚡ Cloud Run + Scheduler</text>
               </g>
               
-              <text x="110" y="70" textAnchor="middle" fill="white" fontSize="14" fontWeight="600">
+              <text x="110" y="50" textAnchor="middle" fill="white" fontSize="14" fontWeight="600">
                 Data Processor
               </text>
               
               {/* Tech Stack Badge */}
-              <g transform="translate(35, 80)">
+              <g transform="translate(35, 60)">
                 <rect x="0" y="0" width="150" height="22" rx="11" fill="#0F172A" stroke="#475569" strokeWidth="1" />
                 <text x="75" y="15" textAnchor="middle" fill="#94A3B8" fontSize="9">
                   🟢 Node.js  |  🐍 Python
@@ -157,7 +178,7 @@ const HLD_Architecture = () => {
               </g>
 
               {/* Processing Steps */}
-              <g transform="translate(20, 115)">
+              <g transform="translate(20, 95)">
                 {/* Step 1 */}
                 <rect x="0" y="0" width="180" height="40" rx="6" fill="#0F172A" />
                 <circle cx="20" cy="20" r="10" fill="#3B82F6" />
@@ -241,86 +262,105 @@ const HLD_Architecture = () => {
             </g>
           </g>
 
-          {/* ==================== LAYER 4: BACKEND ==================== */}
-          <g transform="translate(920, 80)">
-            {/* Section Label */}
-            <text x="0" y="-20" fill="#94A3B8" fontSize="14" fontWeight="600">
-              BACKEND SERVICES
-            </text>
-            <line x1="0" y1="-10" x2="230" y2="-10" stroke="#475569" strokeWidth="1" />
+          {/* ==================== LAYER 4 & 5: BACKEND + FRONTEND (GCP) ==================== */}
+          <g transform="translate(905, 55)">
+            {/* GCP Cloud Wrapper for Backend + Frontend */}
+            <rect x="0" y="0" width="250" height="485" rx="16" fill="none" stroke="url(#gcpGradient)" strokeWidth="2" strokeDasharray="8,4" />
+            <g transform="translate(10, -8)">
+              <rect x="0" y="0" width="120" height="18" rx="9" fill="#1E293B" />
+              <text x="10" y="13" fill="#4285F4" fontSize="9" fontWeight="600">☁️ Google Cloud Platform</text>
+            </g>
 
-            {/* Node.js Microservice Box */}
-            <g filter="url(#shadow)">
-              <rect x="0" y="0" width="230" height="200" rx="12" fill="#1E293B" stroke="url(#nodeGradient)" strokeWidth="2" />
-              
-              {/* Node.js Icon */}
-              <g transform="translate(90, 15)">
-                <polygon points="25,0 50,15 50,45 25,60 0,45 0,15" fill="url(#nodeGradient)" />
-                <text x="25" y="35" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">JS</text>
-              </g>
-              
-              <text x="115" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="600">
-                Node.js Microservice
-              </text>
-              <text x="115" y="108" textAnchor="middle" fill="#94A3B8" fontSize="10">
-                RESTful API Service
+            {/* BACKEND SERVICES */}
+            <g transform="translate(10, 25)">
+              {/* Section Label */}
+              <text x="0" y="0" fill="#94A3B8" fontSize="12" fontWeight="600">
+                BACKEND SERVICES
               </text>
 
-              {/* API Endpoints */}
-              <g transform="translate(15, 120)">
-                <rect x="0" y="0" width="200" height="65" rx="6" fill="#0F172A" />
-                <text x="10" y="18" fill="#68A063" fontSize="10" fontWeight="500">API Endpoints:</text>
-                <text x="10" y="33" fill="#64748B" fontSize="9">GET  /api/audit-logs</text>
-                <text x="10" y="45" fill="#64748B" fontSize="9">POST /api/audit-logs/search</text>
-                <text x="10" y="57" fill="#64748B" fontSize="9">GET  /api/analytics/summary</text>
+              {/* Node.js Microservice Box */}
+              <g filter="url(#shadow)" transform="translate(0, 15)">
+                <rect x="0" y="0" width="230" height="190" rx="12" fill="#1E293B" stroke="url(#cloudRunGradient)" strokeWidth="2" />
+                
+                {/* Cloud Run Badge */}
+                <g transform="translate(75, 8)">
+                  <rect x="0" y="0" width="80" height="18" rx="9" fill="#4285F4" />
+                  <text x="40" y="13" textAnchor="middle" fill="white" fontSize="8" fontWeight="600">⚡ Cloud Run</text>
+                </g>
+                
+                {/* Node.js Icon */}
+                <g transform="translate(90, 30)">
+                  <polygon points="25,0 50,15 50,45 25,60 0,45 0,15" fill="url(#nodeGradient)" />
+                  <text x="25" y="35" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">JS</text>
+                </g>
+                
+                <text x="115" y="105" textAnchor="middle" fill="white" fontSize="13" fontWeight="600">
+                  Node.js Microservice
+                </text>
+                <text x="115" y="120" textAnchor="middle" fill="#94A3B8" fontSize="9">
+                  RESTful API Service
+                </text>
+
+                {/* API Endpoints */}
+                <g transform="translate(15, 130)">
+                  <rect x="0" y="0" width="200" height="50" rx="6" fill="#0F172A" />
+                  <text x="10" y="14" fill="#68A063" fontSize="9" fontWeight="500">API Endpoints:</text>
+                  <text x="10" y="27" fill="#64748B" fontSize="8">GET  /api/audit-logs</text>
+                  <text x="10" y="38" fill="#64748B" fontSize="8">POST /api/audit-logs/search</text>
+                </g>
               </g>
             </g>
-          </g>
 
-          {/* ==================== LAYER 5: FRONTEND ==================== */}
-          <g transform="translate(920, 340)">
-            {/* Section Label */}
-            <text x="0" y="-20" fill="#94A3B8" fontSize="14" fontWeight="600">
-              FRONTEND APPLICATION
-            </text>
-            <line x1="0" y1="-10" x2="230" y2="-10" stroke="#475569" strokeWidth="1" />
-
-            {/* React Dashboard Box */}
-            <g filter="url(#shadow)">
-              <rect x="0" y="0" width="230" height="200" rx="12" fill="#1E293B" stroke="url(#reactGradient)" strokeWidth="2" />
-              
-              {/* React Icon */}
-              <g transform="translate(90, 15)">
-                <ellipse cx="25" cy="25" rx="8" ry="20" fill="none" stroke="#61DAFB" strokeWidth="2" transform="rotate(0 25 25)" />
-                <ellipse cx="25" cy="25" rx="8" ry="20" fill="none" stroke="#61DAFB" strokeWidth="2" transform="rotate(60 25 25)" />
-                <ellipse cx="25" cy="25" rx="8" ry="20" fill="none" stroke="#61DAFB" strokeWidth="2" transform="rotate(-60 25 25)" />
-                <circle cx="25" cy="25" r="4" fill="#61DAFB" />
-              </g>
-              
-              <text x="115" y="75" textAnchor="middle" fill="white" fontSize="14" fontWeight="600">
-                React Dashboard
-              </text>
-              <text x="115" y="93" textAnchor="middle" fill="#94A3B8" fontSize="10">
-                Interactive UI Components
+            {/* FRONTEND APPLICATION */}
+            <g transform="translate(10, 260)">
+              {/* Section Label */}
+              <text x="0" y="0" fill="#94A3B8" fontSize="12" fontWeight="600">
+                FRONTEND APPLICATION
               </text>
 
-              {/* Dashboard Components */}
-              <g transform="translate(15, 105)">
-                <rect x="0" y="0" width="95" height="35" rx="4" fill="#0F172A" />
-                <text x="48" y="15" textAnchor="middle" fill="#61DAFB" fontSize="9">📊 Audit Table</text>
-                <text x="48" y="28" textAnchor="middle" fill="#64748B" fontSize="8">Filter & Sort</text>
+              {/* React Dashboard Box */}
+              <g filter="url(#shadow)" transform="translate(0, 15)">
+                <rect x="0" y="0" width="230" height="195" rx="12" fill="#1E293B" stroke="url(#firebaseGradient)" strokeWidth="2" />
+                
+                {/* Firebase Hosting Badge */}
+                <g transform="translate(60, 8)">
+                  <rect x="0" y="0" width="110" height="18" rx="9" fill="url(#firebaseGradient)" />
+                  <text x="55" y="13" textAnchor="middle" fill="#1E293B" fontSize="8" fontWeight="600">🔥 Firebase Hosting</text>
+                </g>
+                
+                {/* React Icon */}
+                <g transform="translate(90, 30)">
+                  <ellipse cx="25" cy="25" rx="8" ry="20" fill="none" stroke="#61DAFB" strokeWidth="2" transform="rotate(0 25 25)" />
+                  <ellipse cx="25" cy="25" rx="8" ry="20" fill="none" stroke="#61DAFB" strokeWidth="2" transform="rotate(60 25 25)" />
+                  <ellipse cx="25" cy="25" rx="8" ry="20" fill="none" stroke="#61DAFB" strokeWidth="2" transform="rotate(-60 25 25)" />
+                  <circle cx="25" cy="25" r="4" fill="#61DAFB" />
+                </g>
+                
+                <text x="115" y="85" textAnchor="middle" fill="white" fontSize="13" fontWeight="600">
+                  React Dashboard
+                </text>
+                <text x="115" y="100" textAnchor="middle" fill="#94A3B8" fontSize="9">
+                  Interactive UI + CDN
+                </text>
 
-                <rect x="105" y="0" width="95" height="35" rx="4" fill="#0F172A" />
-                <text x="152" y="15" textAnchor="middle" fill="#61DAFB" fontSize="9">📈 Analytics</text>
-                <text x="152" y="28" textAnchor="middle" fill="#64748B" fontSize="8">Charts & Graphs</text>
+                {/* Dashboard Components */}
+                <g transform="translate(15, 110)">
+                  <rect x="0" y="0" width="100" height="30" rx="4" fill="#0F172A" />
+                  <text x="50" y="13" textAnchor="middle" fill="#61DAFB" fontSize="8">📊 Audit Table</text>
+                  <text x="50" y="24" textAnchor="middle" fill="#64748B" fontSize="7">Filter & Sort</text>
 
-                <rect x="0" y="45" width="95" height="35" rx="4" fill="#0F172A" />
-                <text x="48" y="60" textAnchor="middle" fill="#61DAFB" fontSize="9">🔍 Search</text>
-                <text x="48" y="73" textAnchor="middle" fill="#64748B" fontSize="8">Advanced Query</text>
+                  <rect x="110" y="0" width="100" height="30" rx="4" fill="#0F172A" />
+                  <text x="160" y="13" textAnchor="middle" fill="#61DAFB" fontSize="8">📈 Analytics</text>
+                  <text x="160" y="24" textAnchor="middle" fill="#64748B" fontSize="7">Charts</text>
 
-                <rect x="105" y="45" width="95" height="35" rx="4" fill="#0F172A" />
-                <text x="152" y="60" textAnchor="middle" fill="#61DAFB" fontSize="9">⬇️ Export</text>
-                <text x="152" y="73" textAnchor="middle" fill="#64748B" fontSize="8">CSV/PDF</text>
+                  <rect x="0" y="40" width="100" height="30" rx="4" fill="#0F172A" />
+                  <text x="50" y="53" textAnchor="middle" fill="#61DAFB" fontSize="8">🔍 Search</text>
+                  <text x="50" y="64" textAnchor="middle" fill="#64748B" fontSize="7">Query</text>
+
+                  <rect x="110" y="40" width="100" height="30" rx="4" fill="#0F172A" />
+                  <text x="160" y="53" textAnchor="middle" fill="#61DAFB" fontSize="8">⬇️ Export</text>
+                  <text x="160" y="64" textAnchor="middle" fill="#64748B" fontSize="7">CSV/PDF</text>
+                </g>
               </g>
             </g>
           </g>
@@ -328,32 +368,32 @@ const HLD_Architecture = () => {
           {/* ==================== DATA FLOW ARROWS ==================== */}
           {/* Genesys to Processor */}
           <g>
-            <line x1="250" y1="155" x2="350" y2="220" stroke="#3B82F6" strokeWidth="3" markerEnd="url(#arrowhead)" filter="url(#glow)" />
-            <text x="280" y="170" fill="#3B82F6" fontSize="9" fontWeight="500">REST API</text>
+            <line x1="250" y1="155" x2="335" y2="190" stroke="#3B82F6" strokeWidth="3" markerEnd="url(#arrowhead)" filter="url(#glow)" />
+            <text x="275" y="165" fill="#3B82F6" fontSize="9" fontWeight="500">REST API</text>
           </g>
 
           {/* Blackchair to MongoDB (dashed - historical only) */}
           <g>
-            <path d="M 250 380 Q 520 520 660 320" fill="none" stroke="#6B7280" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowheadGray)" />
-            <text x="420" y="450" fill="#6B7280" fontSize="9">Historical Import</text>
+            <path d="M 250 410 Q 520 520 660 400" fill="none" stroke="#6B7280" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowheadGray)" />
+            <text x="440" y="452" fill="#6B7280" fontSize="9">Historical Import</text>
           </g>
 
-          {/* Processor to MongoDB */}
+          {/* Processor to MongoDB */}  
           <g>
-            <line x1="570" y1="220" x2="660" y2="250" stroke="#3B82F6" strokeWidth="3" markerEnd="url(#arrowhead)" filter="url(#glow)" />
-            <text x="590" y="220" fill="#3B82F6" fontSize="9" fontWeight="500">Store</text>
+            <line x1="582" y1="240" x2="655" y2="250" stroke="#3B82F6" strokeWidth="3" markerEnd="url(#arrowhead)" />
+            <text x="600" y="232" fill="#3B82F6" fontSize="9" fontWeight="500">Store</text>
           </g>
 
-          {/* MongoDB to Node.js */}
+          {/* MongoDB to Node.js (Cloud Run) */}
           <g>
-            <line x1="860" y1="250" x2="920" y2="180" stroke="#3B82F6" strokeWidth="3" markerEnd="url(#arrowhead)" filter="url(#glow)" />
-            <text x="865" y="200" fill="#3B82F6" fontSize="9" fontWeight="500">Query</text>
+            <line x1="860" y1="250" x2="900" y2="190" stroke="#3B82F6" strokeWidth="3" markerEnd="url(#arrowhead)" filter="url(#glow)" />
+            <text x="875" y="250" fill="#3B82F6" fontSize="9" fontWeight="500">Query</text>
           </g>
 
-          {/* Node.js to React */}
+          {/* Node.js to React (within GCP) */}
           <g>
-            <line x1="1035" y1="282" x2="1035" y2="305" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#arrowheadSmall)" />
-            <text x="1050" y="300" fill="#3B82F6" fontSize="8" fontWeight="500">JSON</text>
+            <line x1="1100" y1="290" x2="1100" y2="320" stroke="#3B82F6" strokeWidth="3" markerEnd="url(#arrowhead)" />
+            <text x="1115" y="310" fill="#3B82F6" fontSize="9" fontWeight="500">JSON</text>
           </g>
 
           {/* ==================== NOTES SECTION ==================== */}
@@ -367,16 +407,16 @@ const HLD_Architecture = () => {
             <line x1="20" y1="35" x2="1080" y2="35" stroke="#334155" strokeWidth="1" />
             
             <text x="20" y="55" fill="#94A3B8" fontSize="11">
-              • Real-time audit log collection via Genesys Cloud Platform APIs (GET/POST) - replacing manual processes and third-party tools
+              • Real-time audit log collection via Genesys Cloud Platform APIs (GET/POST). Cloud Run service scheduled to poll every 5 minutes for new logs.
             </text>
             <text x="20" y="75" fill="#94A3B8" fontSize="11">
-              • MongoDB stores both actively collected Genesys audit data AND historical Blackchair archives (Blackchair is discontinued - data retained for compliance)
+              • MongoDB stores both actively collected Genesys audit data AND historical Blackchair archives (Blackchair is discontinued - only data retained).
             </text>
             <text x="20" y="95" fill="#94A3B8" fontSize="11">
-              • Node.js microservice provides RESTful endpoints for querying, filtering, and aggregating audit data with pagination support
+              • Node.js microservice on GCP Cloud Run provides RESTful endpoints for querying audit data.
             </text>
             <text x="20" y="115" fill="#94A3B8" fontSize="11">
-              • React-based dashboard delivers interactive visualization with real-time filtering, search, and export capabilities
+              • React dashboard hosted on Firebase Hosting with global CDN for low-latency.
             </text>
             {/* <text x="20" y="132" fill="#F97316" fontSize="10" fontWeight="500">
               ⚠ Going forward: All new audit logs will be collected directly via Genesys APIs - Blackchair integration is deprecated
@@ -385,7 +425,7 @@ const HLD_Architecture = () => {
 
           {/* Legend */}
           <g transform="translate(50, 470)">
-            <rect x="0" y="0" width="300" height="70" rx="6" fill="#0F172A" stroke="#334155" strokeWidth="1" />
+            <rect x="0" y="0" width="420" height="70" rx="6" fill="#0F172A" stroke="#334155" strokeWidth="1" />
             <text x="15" y="20" fill="#94A3B8" fontSize="11" fontWeight="600">Legend:</text>
             
             <line x1="15" y1="38" x2="45" y2="38" stroke="#3B82F6" strokeWidth="3" />
@@ -395,16 +435,25 @@ const HLD_Architecture = () => {
             <text x="55" y="59" fill="#64748B" fontSize="10">Historical/Deprecated</text>
 
             <circle cx="180" cy="38" r="6" fill="#00ED64" />
-            <text x="195" y="42" fill="#64748B" fontSize="10">Primary Storage</text>
+            <text x="195" y="42" fill="#64748B" fontSize="10">MongoDB</text>
 
             <circle cx="180" cy="55" r="6" fill="url(#genesysGradient)" />
             <text x="195" y="59" fill="#64748B" fontSize="10">Data Source</text>
+            
+            <rect x="270" y="32" width="60" height="14" rx="7" fill="#4285F4" />
+            <text x="300" y="43" textAnchor="middle" fill="white" fontSize="8">Cloud Run</text>
+            
+            <rect x="340" y="32" width="70" height="14" rx="7" fill="url(#firebaseGradient)" />
+            <text x="375" y="43" textAnchor="middle" fill="#1E293B" fontSize="8">Firebase</text>
+            
+            <rect x="270" y="50" width="140" height="14" rx="7" fill="none" stroke="url(#gcpGradient)" strokeWidth="1" strokeDasharray="4,2" />
+            <text x="340" y="61" textAnchor="middle" fill="#4285F4" fontSize="8">GCP Boundary</text>
           </g>
 
           {/* Version Badge */}
           <g transform="translate(1050, 570)">
-            <rect x="0" y="0" width="80" height="20" rx="10" fill="#1E293B" stroke="#3B82F6" strokeWidth="1" />
-            <text x="40" y="15" textAnchor="middle" fill="#3B82F6" fontSize="11" fontWeight="600">v1.0.0</text>
+            <rect x="0" y="0" width="80" height="20" rx="10" fill="#1E293B" stroke="#4285F4" strokeWidth="1" />
+            <text x="40" y="15" textAnchor="middle" fill="#4285F4" fontSize="11" fontWeight="600">v1.0.0</text>
           </g>
 
         </svg>
