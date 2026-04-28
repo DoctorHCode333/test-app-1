@@ -1,255 +1,59 @@
-import datetime
-import os
-import sys
-import time
-import PureCloudPlatformClientV2
-from PureCloudPlatformClientV2 import PureCloudRegionHosts
-from PureCloudPlatformClientV2.rest import ApiException
+# DID Dashboard — Prompt Engineering Plan
 
-# these imports are for EST time zone
-# from datetime import datetime
-# from pytz import timezone
-# these imports are for utc
+## Objective
+Build a modern, dark-themed DID (Direct Inward Dialing) Dashboard that integrates with Genesys Cloud Platform API to fetch, display, and categorize all DIDs across the organization — showing assignment status, ownership, and DID pool mappings.
 
-from datetime import datetime,timezone
+---
 
-print('-------------------------------------------------------------')
-print('- Execute Bulk Action on recordings-')
-print('-------------------------------------------------------------')
+## Task 1: Genesys Cloud API Integration
 
-# Credentials
-CLIENT_ID = ""
-CLIENT_SECRET = ""
-ORG_REGION = os.getenv ("GENESYS_CLOUD_REGION") # eg. us_east_1
+**Prompt:**
+> Using the Genesys Cloud Platform Client SDK (`purecloud-platform-client-v2`), implement API functions in `genesysCloudApi.jsx` to:
+> - Instantiate `TelephonyProvidersEdgeApi`
+> - Create `getDIDs()` — paginated fetch from `GET /api/v2/telephony/providers/edges/dids` with configurable `pageSize`, `pageNumber`, `sortBy`, and `sortOrder`
+> - Create `getDIDPools()` — paginated fetch from `GET /api/v2/telephony/providers/edges/didpools` to retrieve all DID pool ranges
+> - Create `getAllDIDs()` — orchestrator that fetches all assigned DIDs via pagination, then cross-references DID pool ranges to generate unassigned DID entries. Use a `Set` for O(1) lookup of assigned numbers. Mark synthetic entries with `isUnassigned: true`
+> - Create `generatePhoneNumberRange()` — helper using `BigInt` to enumerate all phone numbers between pool start/end boundaries
 
-# Set environment
-# region = PureCloudPlatformClientV2.PureCloudRegionHosts[ORG_REGION]
-region=PureCloudRegionHosts['us_east_1']
-PureCloudPlatformClientV2.configuration.host = region.get_api_host()
-print(CLIENT_ID,CLIENT_SECRET, type(CLIENT_ID))
-# OAuth when using Client Credentials
-api_client = PureCloudPlatformClientV2.api_client.ApiClient() \
-            .get_client_credentials_token(CLIENT_ID, CLIENT_SECRET)
+---
 
+## Task 2: Redux State Management
 
-# Get the api
-recording_api = PureCloudPlatformClientV2.RecordingApi(api_client)
+**Prompt:**
+> Extend the existing Redux store with three new slices:
+> - `SET_DID_DATA` / `setDIDData` — stores the full DID array
+> - `SET_DID_LOADING` / `setDIDLoading` — boolean loading state
+> - `SET_DID_ERROR` / `setDIDError` — error message string
+>
+> Add corresponding reducers (`didDataReducer`, `didLoadingReducer`, `didErrorReducer`) to `reducers.jsx` and register them in `combineReducers`.
 
-# Build the create job query, for export action, set query.action = "EXPORT"
-# For delete action, set query.action = "DELETE"
-# For archive action, set query.action = "ARCHIVE"
-# this is for utc
-current_time=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-# this is for EST
-# eastern=timezone('US/Eastren')
-current_time=datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+---
 
-query = PureCloudPlatformClientV2.RecordingJobsQuery()
-query.action = "ARCHIVE"
+## Task 3: DID Dashboard UI Component
 
-# query.action_date = "2029-01-01T00:00:00.000Z"
+**Prompt:**
+> Build `DID_Dashboard.jsx` with these specifications:
+> - **Dark theme** — `bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900` as base
+> - **Nav bar** — Centered title "DID Dashboard" with gradient text, phone icon left of title, user avatar (PrimeReact `Avatar`) on the right. Use absolute positioning for true centering
+> - **3 Statistics Cards** — Inline row using `grid grid-cols-3` wrapped in `flex justify-center`. Cards use glassmorphism (`backdrop-blur-xl`, semi-transparent backgrounds, gradient borders). Color-coded: Cyan (Total), Emerald (Assigned), Amber (Unassigned). Hover glow effects via `group-hover` transitions
+> - **Data Table** — PrimeReact `DataTable` with custom dark theme CSS class `p-datatable-dark`. Columns: Phone Number (cyan mono font), Name, Status (color-coded pill badges), Owner, Owner Type, State, DID Pool (purple). Include global search, assignment filter dropdown, refresh button with gradient styling and padding (`px-5 py-2.5`)
+> - **Computed stats** — `useMemo` for statistics and filtered data based on `isUnassigned` flag and `assignmentFilter` state
+> - **Loading/Error states** — Centered spinner and error display with retry button
 
-query.action_date = current_time
+---
 
-# Comment out integration id if using DELETE or ARCHIVE
+## Task 4: Dark Theme CSS
 
-# query.integration_id = ""
+**Prompt:**
+> Add `.p-datatable-dark` styles in `index.css` targeting: header, thead, tbody rows (alternating with hover), cells, paginator (gradient active page), dropdowns, and input fields — all using slate color palette with cyan accent borders and focus rings.
 
-query.conversation_query = {
-    "interval": "2020-12-01T05:30:00.000Z/2020-12-02T05:30:00.000Z",
-    "order": "asc",
-    "orderBy": "conversationStart",
-    "conversationFilters": [
-        {
-            "type": "and",
-            "clauses": [
-                {
-                    "type": "and",
-                    "predicates": [
-                        {"dimension": "mediaType", "value": "voice"},
-                        {"dimension": "direction", "value": "outbound"}
-                    ]
-                }
-            ]
-        }
-    ]
-}
+---
 
-print(query)
-try:
-    # Call create_recording_job api
-    create_job_response = recording_api.post_recording_jobs(query)
-    job_id = create_job_response.id
-    print(f"Successfully created recording bulk job { create_job_response}")
-    print(job_id)
-except ApiException as e:
-    print(f"Exception when calling RecordingApi->post_recording_jobs: { e }")
-    sys.exit()
+## Task 5: Routing
 
-# Call get_recording_job api
-while True:
-    try:
-        get_recording_job_response = recording_api.get_recording_job(job_id)
-        job_state = get_recording_job_response.state
-        if job_state != 'PENDING':
-            break
-        else:
-            print("Job state PENDING...")
-            time.sleep(2)
-    except ApiException as e:
-        print(f"Exception when calling RecordingApi->get_recording_job: { e }")
-        sys.exit()
+**Prompt:**
+> Register route `/VOYA_CLIENT_APP/DID_Dashboard` in `App.jsx` pointing to the `DID_Dashboard` component.
 
+---
 
-if job_state == 'READY':
-    try:
-        execute_job_response = recording_api.put_recording_job(job_id, {"state": "PROCESSING"})
-        job_state = execute_job_response.state
-        print(f"Successfully execute recording bulk job { execute_job_response}")
-    except ApiException as e:
-        print(f"Exception when calling RecordingApi->put_recording_job: { e }")
-        sys.exit()
-else:
-    print(f"Expected Job State is: READY, however actual Job State is: { job_state }")
-
-
-# Call delete_recording_job api
-# Can be canceled also in READY and PENDING states
-# if job_state == 'PROCESSING':
-#   try:
-#        cancel_job_response = recording_api.delete_recording_job(job_id)
-#        print(f"Successfully cancelled recording bulk job { cancel_job_response}")
-#    except ApiException as e:
-#        print(f"Exception when calling RecordingApi->delete_recording_job: { e }")
-#        sys.exit()
-#  try:
-#    get_recording_jobs_response = recording_api.get_recording_jobs(
-#        page_size=25,
-#        page_number=1,
-#        sort_by="userId",  # or "dateCreated"
-#        state="CANCELLED",  # valid values FULFILLED, PENDING, READY, PROCESSING, CANCELLED, FAILED
-#        show_only_my_jobs=True,
-#        job_type="EXPORT",  # or "DELETE"
-#    )
-#    print(f"Successfully get recording bulk jobs { get_recording_jobs_response}")
-#   except ApiException as e:
-#    print(f"Exception when calling RecordingApi->get_recording_jobs: { e }")
-#    sys.exit()
-
-        while job_state == "PROCESSING":
-            get_recording_job_response = recording_api.get_recording_job(job_id)
-            job_state =  get_recording_job_response.state
-            if job_state == 'PROCESSING':
-                print("Job state PROCESSING...")
-                time.sleep(10)
-            else:
-                print("Job state Complete...")
-                break
-        print("Job state ",job_state)
-        print(f"Successfully execute recording bulk job { get_recording_job_response}")
-
-We developed a secure, web-based application leveraging React and Node.js that transforms how organizations access and manage conversation recordings. The platform enables users to search for specific recordings, then instantly stream or download a redacted version, ensuring compliance and privacy. Access control is fully automated, dynamically assigning permissions based on user credentials to maintain robust security.
-This solution addresses a critical industry challenge: traditional processes for retrieving and redacting recordings often take 7–8 business days and require significant manual effort. By automating search, redaction, and delivery, our application reduces turnaround time to mere minutes, dramatically improving operational efficiency and customer responsiveness.
-The innovation lies in:
-
-Real-time delivery of compliant recordings without manual intervention.
-Role-based security automation, eliminating human error in access control.
-Scalable architecture for enterprise environments, supporting high-volume requests.
-
-This approach not only accelerates compliance workflows but also sets a new benchmark for speed, security, and user experience in contact center and regulated industries.
-
-                                                                                     failed_recordings_api = get_recording_job_response.failed_recordings
-        failed_recordings_api = 'https://api.mypurecloud.com' + failed_recordings_api
-        # failed_recordings_api = 'https://api.usw2.pure.cloud' + failed_recordings_api
-       
-        archive_date = (datetime.now(timezone.utc) - timedelta(hours=4, minutes=30)) \
-            .strftime("%Y-%m-%dT%H:%M:%S.000Z")
-        print(archive_date)
-        base_host = PureCloudPlatformClientV2.configuration.host
-        failed_recordings_url = urljoin(base_host, failed_recordings_api)
-        print(failed_recordings_url)
-
-        session = requests.Session()
-        session.headers.update({
-            "Authorization": f"Bearer {api_client.access_token}",
-            "Accept": "application/json"
-        })
-
-
-        page_size = 100
-        cursor = None  
-
-        total_seen = 0
-        total_archived = 0
-        errors = []
-
-        while True:
-            params = {
-                "includeTotal": "false", 
-                "pageSize": str(page_size)
-            }
-            if cursor:
-                params["cursor"] = cursor
-
-            resp = session.get(failed_recordings_url, params=params, timeout=30)
-            try:
-                resp.raise_for_status()
-            except requests.HTTPError as http_err:
-                print(f"[ERROR] GET failed recordings: {http_err} — URL={resp.url}")
-                break
-
-            data = resp.json() if resp.content else {}
-            entities = data.get("entities", [])
-
-            if not entities and not data.get("cursor"):
-                break
-
-            for entity in entities:
-                total_seen += 1
-                conversation_id = entity.get("conversationId")
-                recording_id = entity.get("recordingId")
-
-                if not conversation_id or not recording_id:
-                    errors.append({"entity": entity, "error": "Missing conversationId or recordingId"})
-                    continue        
-                body = PureCloudPlatformClientV2.Recording()
-                body.file_state = "ARCHIVE"  
-                body.archive_date = archive_date 
-                try:
-                    api_response = recording_api.put_conversation_recording(
-                        conversation_id,
-                        recording_id,
-                        body
-
-                    )
-                    total_archived += 1
-                    if total_archived % 50 == 0:
-                        print(
-                            f"Archived {total_archived} / {total_seen} (last conv={conversation_id}, rec={recording_id})")
-                except ApiException as e:
-                    errors.append({
-                        "conversationId": conversation_id,
-                        "recordingId": recording_id,
-                        "error": str(e)
-                    })
-            cursor = data.get("cursor")
-            if not cursor:
-                break
-
-        # ---- Summary ----
-        print("-------------------------------------------------------------")
-        print(f"Archive date used for ALL records: {archive_date}")
-        print(f"Failed recordings processed: {total_seen}")
-        print(f"Successfully archived:        {total_archived}")
-        print(f"Errors:                       {len(errors)}")
-os.environ['REQUESTS_CA_BUNDLE'] = ""
-                                                                                     
-ID- 4ffcb0ff-81cc-4034-b61c-d6ca0f4f1933
-
-https://apps.mypurecloud.com/directory/#/admin/integrations/apps/purecloud-data-actions/3d1f36f3-1379-4fdc-9721-3540a48f9179/details
-secret - dOT9c4Cfi6KKrME5mwKWi9aemsjeBGGlELul7vfxacQ
-Error: Failed to create queue ROTH | error: API Error: 403 - Unable to perform the requested action. You are missing the following permission(s): [routing:queue:add:data.genesyscloud_auth_division_home.Home.id] (8fc65b25-531b-42ea-a924-1311b0b1f874)
-
-8f9c4149-0885-4655-9e84-03a9cfb06a5a
-MPzP5UBjQ5w89UVGl2IMrNHAXUH4O713H6FR2dymE2QIUzypfnrWlA
-G97C__MPzP5UBjQ5w89UVGl2IMrNHAXUH4O713H6FR2dymE2QIUzypfnrWlA
+**Key Design Decisions:** Cross-referencing DIDs API with DID Pools API to surface unassigned numbers • BigInt for phone number range generation • Redux for centralized state • Custom CSS over PrimeReact theme override for full dark-mode control
